@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>تسجيل المناديب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#1a1d23;--muted:#6b7280;--line:#e3e6eb;--accent:#e30613;--accent-ink:#fff;--soft:#fdecee;
+ --ok:#0f7b46;--okbg:#e5f5ec;--warn:#9a5b00;--warnbg:#fdf2dc;--bad:#b4121b;--badbg:#fde8e9;--neu:#4b5563;--neubg:#eef0f3;
+ color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--surface:#1e2127;--ink:#eceef2;--muted:#9aa1ad;--line:#2f333b;--soft:#3a1d20;
+ --ok:#5fd39a;--okbg:#173527;--warn:#f0b75a;--warnbg:#3a2c12;--bad:#ff7b82;--badbg:#3d1a1d;--neu:#c3c8d0;--neubg:#2a2e35;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171b;--surface:#1e2127;--ink:#eceef2;--muted:#9aa1ad;--line:#2f333b;--soft:#3a1d20;
+ --ok:#5fd39a;--okbg:#173527;--warn:#f0b75a;--warnbg:#3a2c12;--bad:#ff7b82;--badbg:#3d1a1d;--neu:#c3c8d0;--neubg:#2a2e35;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{max-width:1200px;margin:0 auto;padding:14px 20px 0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 24px}
+h1{font-size:20px;margin:0 0 12px;font-weight:700}
+nav{display:flex;gap:4px;margin-inline-start:auto}
+nav button{border:0;background:none;color:var(--muted);font:inherit;font-weight:600;padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px}
+fieldset{border:0;padding:0;margin:0 0 28px}
+legend{font-weight:700;font-size:16px;margin-bottom:14px;padding:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px 20px}
+label{display:block;font-weight:500;font-size:14px;margin-bottom:6px}
+label .req{color:var(--accent)}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.drop{border:1.5px dashed var(--line);border-radius:8px;padding:12px;background:var(--bg)}
+.drop small{display:block;color:var(--muted);margin-bottom:8px}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:zoom-in}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:11px 22px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.msg{font-weight:500}
+.msg.ok{color:var(--ok)}.msg.err{color:var(--bad)}
+.filters{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;align-items:flex-end}
+.filters>div{min-width:180px;flex:1}
+.counts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;white-space:nowrap;display:inline-block}
+.s-none{background:var(--neubg);color:var(--neu)}
+.s-Yes{background:var(--okbg);color:var(--ok)}
+.s-No,.s-Contractor{background:var(--badbg);color:var(--bad)}
+.s-Wrong,.s-Duplicated,.s-Another{background:var(--warnbg);color:var(--warn)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);vertical-align:middle;font-size:14px}
+th{color:var(--muted);font-weight:600;background:var(--bg);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td select{min-width:190px;padding:7px 10px}
+.link{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;padding:0}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+dialog{border:0;border-radius:12px;padding:0;max-width:min(860px,94vw);width:100%;background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dlg-b{padding:20px;max-height:75vh;overflow:auto}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;margin-bottom:20px}
+.kv div span{display:block;color:var(--muted);font-size:13px}
+.gal h4{margin:16px 0 8px;font-size:14px}
+.gal img{width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in}
+#zoom img{max-width:100%;max-height:85vh;display:block;margin:auto}
+.note{color:var(--muted);font-size:14px;margin:-4px 0 18px}
+[hidden]{display:none!important}
+#login{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:max(20px,env(safe-area-inset-top,0px)) 16px max(20px,env(safe-area-inset-bottom,0px));overflow:auto;
+ background:
+  repeating-linear-gradient(135deg,transparent 0 46px,rgba(196,120,90,.18) 46px 50px,transparent 50px 96px),
+  linear-gradient(180deg,#b9cbe0 0%,#d8dfe6 28%,#c9a27a 29%,#d6b48c 70%,#bf9670 100%)}
+#login::before{content:"";position:absolute;inset:0;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.login-card{position:relative;width:100%;max-width:360px;background:rgba(255,255,255,.93);color:#1a1d23;border-radius:14px;padding:26px 16px 30px;box-shadow:0 10px 40px rgba(40,25,10,.25)}
+.login-card h2{margin:0 0 18px;font-size:24px;font-weight:700}
+.login-card label{font-size:15px;font-weight:500;color:#1a1d23}
+.login-card input{background:#fff;color:#1a1d23;border:1px solid #dde1e6;border-radius:10px;padding:11px 12px;margin-bottom:14px}
+.login-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+.login-btn{background:#e30613;color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.lang-btn{background:#fff;border:1px solid #dde1e6;border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;color:#1a1d23;cursor:pointer}
+#loginMsg{display:block;margin-top:12px;color:#b4121b;font-size:14px;min-height:1em}
+@media (prefers-color-scheme:dark){.login-card{background:rgba(30,33,39,.93);color:#eceef2}.login-card label{color:#eceef2}.login-card input,.lang-btn{background:#15171b;color:#eceef2;border-color:#2f333b}}
+.who{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-weight:600}
+.who .btn{padding:6px 12px;font-size:13px}
+input[readonly]{opacity:.8;cursor:not-allowed}
+@media (max-width:640px){nav{margin-inline-start:0;width:100%}nav button{flex:1}main{padding:16px 12px 60px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+ <h1>تسجيل المناديب</h1>
+ <div class="who" id="who" hidden><span id="whoName"></span><button class="btn" id="logoutBtn" type="button">تسجيل خروج</button></div>
+ <nav role="tablist" id="tabs" hidden>
+  <button role="tab" data-tab="form" aria-selected="true" class="officeTab">تسجيل مندوب</button>
+  <button role="tab" data-tab="mine" aria-selected="false" class="officeTab">مناديب مكتبي</button>
+  <button role="tab" data-tab="admin" aria-selected="false" hidden id="adminTabBtn">الأدمن</button>
+ </nav>
+</div></header>
+
+<main>
+<div id="status" class="note" hidden></div>
+
+<section id="login" hidden>
+ <form id="loginForm" class="login-card" dir="ltr" novalidate>
+  <h2 data-l="title">Sign in</h2>
+  <label for="l_user" data-l="email">Email</label><input id="l_user" type="email" dir="ltr" autocomplete="username">
+  <label for="l_pass" data-l="pass">Password</label><input id="l_pass" type="password" dir="ltr" autocomplete="current-password">
+  <div class="login-row"><button class="login-btn" type="submit" data-l="btn">Login</button><button class="lang-btn" type="button" id="langBtn">🌐 العربية / English</button></div>
+  <span id="loginMsg" role="status"></span>
+ </form>
+</section>
+
+<!-- TAB 1 -->
+<section id="tab-form" class="panel">
+<form id="repForm" novalidate>
+ <fieldset><legend>بيانات المكتب</legend>
+  <div class="grid">
+   <div><label for="f_date">تاريخ رفع البيانات <span class="req">*</span></label><input type="date" id="f_date" required></div>
+   <div><label for="f_office">اسم المكتب <span class="req">*</span></label><input id="f_office" required readonly></div>
+  </div>
+ </fieldset>
+ <fieldset><legend>بيانات المندوب</legend>
+  <div class="grid">
+   <div><label for="f_name">اسم المندوب رباعي <span class="req">*</span></label><input id="f_name" required></div>
+   <div><label for="f_phone">رقم الهاتف <span class="req">*</span></label><input id="f_phone" required inputmode="tel" dir="ltr" placeholder="01xxxxxxxxx"></div>
+   <div><label for="f_nid">رقم البطاقة <span class="req">*</span></label><input id="f_nid" required inputmode="numeric" dir="ltr" maxlength="14" placeholder="14 رقم"></div>
+   <div><label for="f_hub">الفرع الذي سيعمل به <span class="req">*</span></label><select id="f_hub" required></select></div>
+  </div>
+ </fieldset>
+ <fieldset><legend>بيانات المركبة</legend>
+  <div class="grid">
+   <div><label for="f_vtype">نوع المركبة <span class="req">*</span></label><select id="f_vtype" required>
+     <option value="">اختر</option><option>Van</option><option>Sedan</option><option>Motorbike</option><option>Tricycle</option></select></div>
+   <div><label for="f_model">نوع العربية أو الموتوسيكل <span class="req">*</span></label><input id="f_model" required placeholder="مثال: Hyundai Verna"></div>
+   <div><label for="f_plate">رقم لوحة المركبة <span class="req">*</span></label><input id="f_plate" required></div>
+   <div><label for="f_year">سنة صنع المركبة <span class="req">*</span></label><input id="f_year" required type="number" min="1970" max="2030" dir="ltr"></div>
+  </div>
+ </fieldset>
+ <fieldset><legend>الصور</legend>
+  <div class="grid">
+   <div><label>وجه البطاقة + رخصة القيادة + رخصة المركبة <span class="req">*</span></label>
+    <div class="drop"><small>ارفع 3 صور</small><input type="file" accept="image/*" multiple data-img="front"><div class="thumbs" data-prev="front"></div></div></div>
+   <div><label>ظهر البطاقة + رخصة القيادة + رخصة المركبة <span class="req">*</span></label>
+    <div class="drop"><small>ارفع 3 صور</small><input type="file" accept="image/*" multiple data-img="back"><div class="thumbs" data-prev="back"></div></div></div>
+   <div><label>صورة شخصية للمندوب <span class="req">*</span></label>
+    <div class="drop"><small>صورة واحدة</small><input type="file" accept="image/*" data-img="personal"><div class="thumbs" data-prev="personal"></div></div></div>
+   <div><label>صورة المركبة <span class="req">*</span></label>
+    <div class="drop"><small>صورة واحدة</small><input type="file" accept="image/*" data-img="vehicle"><div class="thumbs" data-prev="vehicle"></div></div></div>
+  </div>
+ </fieldset>
+ <div class="actions">
+  <button class="btn primary" type="submit" id="submitBtn">إرسال البيانات</button>
+  <span id="formMsg" class="msg" role="status"></span>
+ </div>
+</form>
+</section>
+
+<!-- TAB 2 -->
+<section id="tab-mine" hidden>
+ <div class="filters">
+  <div><label for="m_search">بحث بالاسم أو الهاتف أو البطاقة</label><input id="m_search"></div>
+  <div><label for="m_action">حالة المراجعة</label><select id="m_action" class="actionFilter"></select></div>
+ </div>
+ <div class="counts" id="m_counts"></div>
+ <div class="tablewrap"><table><thead><tr>
+  <th>التاريخ</th><th>المكتب</th><th>المندوب</th><th>الهاتف</th><th>الفرع</th><th>المركبة</th><th>حالة المراجعة</th><th></th>
+ </tr></thead><tbody id="m_body"></tbody></table></div>
+</section>
+
+<!-- ADMIN -->
+<section id="tab-admin" hidden>
+ <div class="filters">
+  <div><label for="a_search">بحث</label><input id="a_search" placeholder="اسم، هاتف، بطاقة، لوحة"></div>
+  <div><label for="a_office">المكتب</label><select id="a_office"></select></div>
+  <div><label for="a_hub">الفرع</label><select id="a_hub"></select></div>
+  <div><label for="a_action">Action</label><select id="a_action" class="actionFilter"></select></div>
+  <div style="flex:0"><button class="btn" id="exportBtn" type="button">تصدير CSV</button></div>
+ </div>
+ <div class="counts" id="a_counts"></div>
+ <div class="tablewrap"><table><thead><tr>
+  <th>التاريخ</th><th>المكتب</th><th>المندوب</th><th>الهاتف</th><th>البطاقة</th><th>الفرع</th><th>المركبة</th><th>Action</th><th></th>
+ </tr></thead><tbody id="a_body"></tbody></table></div>
+</section>
+</main>
+
+<dialog id="detail"><div class="dlg-h"><strong id="d_title"></strong><button class="btn" data-close>إغلاق</button></div><div class="dlg-b" id="d_body"></div></dialog>
+<dialog id="zoom"><div class="dlg-h"><span></span><button class="btn" data-close>إغلاق</button></div><div class="dlg-b"><img alt=""></div></dialog>
+
+<script>
+const HUBS=["03DSP-Elsadat Hub","3rd settelment","Al Waha hub","Alexandria Hub","Asher Hub","Assiut Hub","Aswan Hub","Banha Hub","Bani Mazar Hub","Behira Hub","Beni Suef Hub","Dikernis Hub","Domiatta Hub","Downtown Hub","Edfo Hub","El Obour Hub","El Quseir Hub","ElAgamy Hub","ElMahala Hub","El-Mansoura Hub","El-Sharkia Hub","Faisal Hub","Faqous Hub","Fayoum Hub","Gesr Elsuez Hub","Hadayk El Ahram Hub","Hadayk October","Haram Hub","Hawamdya Hub","Heliopolis Hub","Helwan Hub","Huarghada Hub","Imbaba Hub","Inventory Hub","Ismailia Hub","Kafrelsheikh Hub","Katamya-New Hub","Khorshid Hub","Luxor Hub","Maadi Hub","Madinaty Hub","Mansoura-Talkha Hub","Marg Hub","Matrouh Hub","Minya Hub","Mohandseen Hub","Mokattam Hub","Monufia Hub","Nagaa Hammadi Hub","Nasr City Hub","New Cairo Hub","New October Hub","New Valley Hub","October Hub","Port Said Hub","Qalyoub Hub","Qena Hub","Sharm EL Sheikh Hub","Sheraton Hub","Shobra Hub","Shorouk Hub","Smouha Hub","Sohag Hub","Suez Hub","Tanta Hub","Zahraa El Maadi Hub","Zahraa Nasr City Hub"];
+const ACTIONS=["Yes","No","Wrong Data","Duplicated","Contractor Termination","Another Contractor"];
+const IMG_LABELS={front:"وجه البطاقة والرخص",back:"ظهر البطاقة والرخص",personal:"صورة شخصية",vehicle:"صورة المركبة"};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const chipCls=a=>a?"s-"+a.split(" ")[0]:"s-none";
+const chip=a=>`<span class="chip ${chipCls(a)}">${esc(a||"قيد المراجعة")}</span>`;
+const opts=(arr,first)=>(first!==undefined?`<option value="">${first}</option>`:"")+arr.map(v=>`<option>${esc(v)}</option>`).join("");
+
+$("#f_hub").innerHTML=opts(HUBS,"اختر الفرع");
+$("#a_hub").innerHTML=opts(HUBS,"كل الفروع");
+$$(".actionFilter").forEach(s=>s.innerHTML=`<option value="">الكل</option><option value="__none">قيد المراجعة</option>`+opts(ACTIONS));
+$("#f_date").value=new Date().toISOString().slice(0,10);
+
+let db=null,assets=null,user=null,myId=null,isAdmin=false,canEditDb=false,downloads=null;
+const ADMIN_USER="admin@bosta.co",ADMIN_HASH="02535be99f9ed6cfb6526056ef960f4bb59d849ee0b29dc0925948fa18021ea3";
+let reps=[],actions={};
+const files={front:[],back:[],personal:[],vehicle:[]};
+
+function status(t){const s=$("#status");s.hidden=!t;s.textContent=t||""}
+
+// Tabs
+$$("nav button").forEach(b=>b.onclick=()=>{
+ $$("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ ["form","mine","admin"].forEach(t=>$("#tab-"+t).hidden=t!==b.dataset.tab);
+ render();
+});
+
+// Image pickers
+$$("input[data-img]").forEach(inp=>inp.onchange=()=>{
+ const k=inp.dataset.img; files[k]=[...inp.files];
+ $(`[data-prev="${k}"]`).innerHTML=""; files[k].forEach(f=>{const i=new Image();i.src=URL.createObjectURL(f);i.alt="";$(`[data-prev="${k}"]`).append(i)});
+});
+
+// Office accounts (passwords stored only as salted SHA-256 hashes)
+const ACCOUNTS={"pyramids@bosta.co": ["Pyramids", "b5264f6244ee5305a16dc29d39aef76bfb566056c7c9e4598b644ba08b3da4d5"], "meshwarylimo@bosta.co": ["Meshwary Limo", "7da3a7e3cadb94fd9a65150fb6b97a302893d9bf0f6266bd93be1bf6c5b227c0"], "elhana@bosta.co": ["El Hana", "4f5133e1e027b2437da9a6f209582c22c7f359b6767824a59391498d5a6afcae"], "first@bosta.co": ["First", "c6ccb741633e61aaf7ec3aaceabb5eab3362ba534b8f892f59d792428296734a"], "smart@bosta.co": ["Smart", "0fae5d4730e2d95e76a659290b438a76ab11080ef3695b860682f5e2a398177f"], "fullspeed@bosta.co": ["Full Speed", "117bb37476ddec493af222e3d8a7e68983e46a2e7c21c92817e7b3114f710643"], "sprinta@bosta.co": ["Sprinta", "2d99a8eb1cd67801d7fd212fef482f4e389067cb028b9c654af478d5e00103a5"], "felengaz@bosta.co": ["Felengaz", "73026b3385ad9c53abe6257b1ad9139e4f8cc71cea380f9e8f94a555f19b8ac4"], "topline@bosta.co": ["Top Line", "f62a5b5b11cd8d615cae6d18ff98988300c1ad78be5c750201e1f72a8fc51c5c"], "movepoint@bosta.co": ["Move Point", "f098bd07e940cce6dc968a32a87cf1ac204a6f480c185496c0d1173d98e8c340"], "marzouk@bosta.co": ["Marzouk", "0f0e95f116459e278bdfa4fd0fe2463b96177fd0862ac57d83de3d1bf25638ab"], "novax@bosta.co": ["Novax", "3513f4e7597a7adbc07d383168eb402e8b536872f5ed417561c53f9f049262b4"], "egypt@bosta.co": ["Egypt", "ea2bbe7542f2c7ed824160d5f8c2b9ded2356b2e2e46e0a9f4ec251a78d1ee8d"], "speed@bosta.co": ["Speed", "b723e945595c3a70e1bb6923ac06d06c00a7f9f6b28a7cec7346c0727fa53f25"], "dana@bosta.co": ["Dana", "1158eaca1dc64b36ea471ace4aa22930db6b0751fb3333c2c4479ffb0a21a257"], "elalamia@bosta.co": ["El Alamia", "7bab35ee457d4ce9ae21240cb6ec73be3040c67794a7ab1ecb9fd8499ebd3d06"], "trueexpress@bosta.co": ["True Express", "7b39a7e92ac0145c821dc8ee3bd572c4486746233a1a0ec641286f34374bfda3"], "starteam@bosta.co": ["Star Team", "dcc781ea0287b4f2d4e5dc5c8ecdb6b69e257d1eca2e57f9283ed68235fe45bf"], "tmp@bosta.co": ["TMP", "2e825b6771a38b9441b6e60417dbd9f53550764ba971e98d3c7277025d050e7b"], "gearz@bosta.co": ["GearZ", "076c90f3179045b7a7a485f25f084a1d6b84c30346ab871e7b803e339932b18f"], "kayanexpress@bosta.co": ["Kayan Express", "e729bd60a09966de05c33d49f6d980adad776e1f8076d4d5cb7f5dc3730b1f5b"], "daynamic@bosta.co": ["Daynamic", "b5dbafe0b189156ab6e566d5729b1fcd8219656abb3e5c2866f065fa4b0d852f"], "runexpress@bosta.co": ["Run Express", "63432344d3bff9bce2286c97f224e4ea3beb4ff40dc14fe1272bbe4941d9636b"], "speedlight@bosta.co": ["Speed Light", "94a51bee474089e258c14bd94ec4d497599da62f150750dc5ee329cc0005543f"], "capitalexpress@bosta.co": ["Capital Express", "189c27443cb68d3ede5c391d7b7737372f11e66fdad703242c75f017d67d8f84"], "sahl@bosta.co": ["Sahl", "0a27c249b86c6013a3a27527276db4c092e36e68442d635983095f621e27bfd9"], "noorexpress@bosta.co": ["Noor Express", "1fba1bd7049efb6f6ddc9aa9fd1e242597dcc4e2a75c9e56cdb35ba443f31e03"]};
+const OFFICES=Object.values(ACCOUNTS).map(a=>a[0]);
+let session=null; // {u, office}
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function applySession(){
+ const off=!!session&&!session.admin;
+ isAdmin=!!session?.admin;
+ $("#login").hidden=!!session;
+ $("#tabs").hidden=!session;
+ $$(".officeTab").forEach(b=>b.hidden=!off);
+ $("#adminTabBtn").hidden=!isAdmin;
+ $("#who").hidden=!session;
+ $("#whoName").textContent=isAdmin?"الأدمن":off?"مكتب "+session.office:"";
+ $("#f_office").value=off?session.office:"";
+ $("#status").hidden=true;
+ if(isAdmin&&user&&!canEditDb){$("#status").hidden=false;$("#status").textContent="تقدر تشوف البيانات، بس اختيار الـ Action محتاج حساب claude.ai بصلاحية Editor على الصفحة."}
+ const first=$$("nav button").find(b=>!b.hidden);
+ if(first)first.click(); else ["form","mine","admin"].forEach(t=>$("#tab-"+t).hidden=true);
+}
+try{const s=JSON.parse(localStorage.getItem("session")||"null");if(s&&s.u===ADMIN_USER)session={u:s.u,admin:true};else if(s&&ACCOUNTS[s.u])session={u:s.u,office:ACCOUNTS[s.u][0]}}catch(e){}
+const LT={en:{title:"Sign in",email:"Email",pass:"Password",btn:"Login",err:"Wrong email or password"},ar:{title:"تسجيل الدخول",email:"البريد الإلكتروني",pass:"كلمة السر",btn:"دخول",err:"الإيميل أو كلمة السر غلط"}};
+let lang="en";
+function setLang(l){lang=l;$("#loginForm").dir=l==="ar"?"rtl":"ltr";$$("#loginForm [data-l]").forEach(el=>el.textContent=LT[l][el.dataset.l]);$("#loginMsg").textContent=""}
+$("#langBtn").onclick=()=>setLang(lang==="en"?"ar":"en");
+$("#loginForm").onsubmit=async e=>{
+ e.preventDefault();
+ const u=$("#l_user").value.trim().toLowerCase(),p=$("#l_pass").value;
+ if(u===ADMIN_USER){
+  if(await sha("bosta-reps|"+u+"|"+p)!==ADMIN_HASH){$("#loginMsg").textContent=LT[lang].err;return}
+  session={u,admin:true};$("#loginMsg").textContent="";$("#l_pass").value="";
+  try{localStorage.setItem("session",JSON.stringify({u}))}catch(e){}
+  applySession();render();return;
+ }
+ const acc=ACCOUNTS[u];
+ if(!acc||await sha("bosta-reps|"+u+"|"+p)!==acc[1]){$("#loginMsg").textContent=LT[lang].err;return}
+ session={u,office:acc[0]};$("#loginMsg").textContent="";$("#l_pass").value="";
+ try{localStorage.setItem("session",JSON.stringify({u}))}catch(e){}
+ applySession();
+};
+$("#logoutBtn").onclick=()=>{session=null;try{localStorage.removeItem("session")}catch(e){}applySession()};
+applySession();
+
+$("#repForm").onsubmit=async e=>{
+ e.preventDefault();
+ const msg=$("#formMsg");msg.className="msg";
+ const v=id=>$("#"+id).value.trim();
+ const req=["f_date","f_office","f_name","f_phone","f_nid","f_hub","f_vtype","f_model","f_plate","f_year"];
+ const missing=req.find(id=>!v(id));
+ if(missing){msg.classList.add("err");msg.textContent="أكمل كل الحقول المطلوبة";$("#"+missing).focus();return}
+ if(v("f_name").split(/\s+/).length<4){msg.classList.add("err");msg.textContent="اكتب اسم المندوب رباعي";$("#f_name").focus();return}
+ if(!/^\d{14}$/.test(v("f_nid"))){msg.classList.add("err");msg.textContent="رقم البطاقة لازم يكون 14 رقم";$("#f_nid").focus();return}
+ const missImg=Object.keys(files).find(k=>!files[k].length);
+ if(missImg){msg.classList.add("err");msg.textContent="ارفع "+IMG_LABELS[missImg];return}
+ if(!session){msg.classList.add("err");msg.textContent="سجّل دخول المكتب الأول";return}
+ if(!db||!assets){msg.classList.add("err");msg.textContent="لا يمكن الحفظ الآن: افتح الصفحة وأنت مسجل دخول";return}
+ const btn=$("#submitBtn");btn.disabled=true;msg.textContent="جاري رفع الصور…";
+ try{
+  const imgs={};
+  for(const k of Object.keys(files)){imgs[k]=[];for(const f of files[k]){const r=await assets.upload(f);imgs[k].push(r.id)}}
+  msg.textContent="جاري الحفظ…";
+  await db.collection("reps").add({
+   date:v("f_date"),office:v("f_office"),name:v("f_name"),phone:v("f_phone"),nid:v("f_nid"),hub:v("f_hub"),
+   vehicleType:v("f_vtype"),vehicleModel:v("f_model"),plate:v("f_plate"),vehicleYear:v("f_year"),
+   officeUser:session.u,images:imgs,createdBy:myId||"",createdAt:new Date().toISOString()
+  });
+  const keep=[v("f_date"),v("f_office")];
+  $("#repForm").reset();$("#f_date").value=keep[0];$("#f_office").value=keep[1];
+  Object.keys(files).forEach(k=>{files[k]=[];$(`[data-prev="${k}"]`).innerHTML=""});
+  msg.classList.add("ok");msg.textContent="تم إرسال بيانات المندوب";
+ }catch(err){msg.classList.add("err");msg.textContent="تعذر الحفظ: "+(err?.code==="too_large"?"صورة أكبر من 20 ميجا":err?.message||"خطأ غير معروف")}
+ btn.disabled=false;
+};
+
+function filtered(list,p){
+ const q=$("#"+p+"_search").value.trim().toLowerCase(), a=$("#"+p+"_action").value;
+ return list.filter(r=>{
+  const act=actions[r.id]||"";
+  if(a==="__none"&&act)return false; if(a&&a!=="__none"&&act!==a)return false;
+  if(q&&![r.name,r.phone,r.nid,r.plate].some(x=>String(x||"").toLowerCase().includes(q)))return false;
+  if(p==="a"){if($("#a_office").value&&r.office!==$("#a_office").value)return false;if($("#a_hub").value&&r.hub!==$("#a_hub").value)return false}
+  return true;
+ }).sort((x,y)=>(y.createdAt||"").localeCompare(x.createdAt||""));
+}
+function counts(list,el){
+ const c={"":0};ACTIONS.forEach(a=>c[a]=0);list.forEach(r=>c[actions[r.id]||""]++);
+ $(el).innerHTML=`<span class="chip s-none">الإجمالي ${list.length}</span>`+Object.entries(c).filter(([,n])=>n).map(([a,n])=>`<span class="chip ${chipCls(a)}">${esc(a||"قيد المراجعة")}: ${n}</span>`).join("");
+}
+function render(){
+ const offices=[...new Set([...OFFICES,...reps.map(r=>r.office)])].sort();
+ // Mine
+ const mine=session?reps.filter(r=>r.office===session.office):[];
+ const m=filtered(mine,"m");counts(mine,"#m_counts");
+ $("#m_body").innerHTML=m.length?m.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.office)}</td><td>${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.hub)}</td><td>${esc(r.vehicleType)}</td><td>${chip(actions[r.id])}</td><td><button class="link" data-view="${r.id}">التفاصيل</button></td></tr>`).join("")
+  :`<tr><td colspan="8" class="empty">${mine.length?"لا نتائج لهذا البحث":"لم تسجل أي مندوب بعد. ابدأ من تبويب «تسجيل مندوب»."}</td></tr>`;
+ if(!isAdmin)return;
+ const cur=$("#a_office").value;$("#a_office").innerHTML=opts(offices,"كل المكاتب");$("#a_office").value=cur;
+ const a=filtered(reps,"a");counts(reps,"#a_counts");
+ $("#a_body").innerHTML=a.length?a.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.office)}</td><td>${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td dir="ltr">${esc(r.nid)}</td><td>${esc(r.hub)}</td><td>${esc(r.vehicleType)}</td>
+  <td><select data-act="${r.id}" aria-label="Action">${`<option value="">قيد المراجعة</option>`+ACTIONS.map(x=>`<option ${actions[r.id]===x?"selected":""}>${x}</option>`).join("")}</select></td>
+  <td><button class="link" data-view="${r.id}">التفاصيل</button></td></tr>`).join("")
+  :`<tr><td colspan="9" class="empty">${reps.length?"لا نتائج لهذه الفلاتر":"لم ترفع المكاتب أي بيانات بعد"}</td></tr>`;
+}
+["m_search","m_action","a_search","a_office","a_hub","a_action"].forEach(id=>$("#"+id).addEventListener("input",render));
+
+document.addEventListener("change",async e=>{
+ const s=e.target.closest("select[data-act]");if(!s)return;
+ const id=s.dataset.act,val=s.value;s.disabled=true;
+ try{
+  if(val)await db.doc("actions/"+id).set({action:val,updatedAt:new Date().toISOString()});
+  else await db.doc("actions/"+id).delete();
+ }catch(err){alert("تعذر حفظ الـ Action: "+(err?.message||""));render()}
+ s.disabled=false;
+});
+
+document.addEventListener("click",e=>{
+ const v=e.target.closest("[data-view]");
+ if(v){const r=reps.find(x=>x.id===v.dataset.view);if(!r)return;
+  $("#d_title").textContent=r.name;
+  const kv=[["تاريخ الرفع",r.date],["المكتب",r.office],["الهاتف",r.phone],["رقم البطاقة",r.nid],["الفرع",r.hub],["نوع المركبة",r.vehicleType],["العربية/الموتوسيكل",r.vehicleModel],["رقم اللوحة",r.plate],["سنة الصنع",r.vehicleYear]];
+  $("#d_body").innerHTML=`<p>${chip(actions[r.id])}</p><div class="kv">${kv.map(([k,x])=>`<div><span>${k}</span>${esc(x)}</div>`).join("")}</div>`+
+   Object.keys(IMG_LABELS).map(k=>`<div class="gal"><h4>${IMG_LABELS[k]}</h4><div class="thumbs">${(r.images?.[k]||[]).map(id=>`<img src="/_blob/${esc(id)}" alt="${IMG_LABELS[k]}" loading="lazy">`).join("")||"<span class='note'>لا توجد صور</span>"}</div></div>`).join("");
+  $("#detail").showModal();return}
+ const img=e.target.closest(".thumbs img");
+ if(img){$("#zoom img").src=img.src;$("#zoom").showModal();return}
+ const c=e.target.closest("[data-close]");if(c)c.closest("dialog").close();
+});
+
+$("#exportBtn").onclick=async()=>{
+ const rows=filtered(reps,"a"),cols=["date","office","name","phone","nid","hub","vehicleType","vehicleModel","plate","vehicleYear"];
+ const head=["تاريخ الرفع","المكتب","المندوب","الهاتف","البطاقة","الفرع","نوع المركبة","الموديل","اللوحة","سنة الصنع","Action"];
+ const q=x=>`"${String(x??"").replace(/"/g,'""')}"`;
+ const csv="\ufeff"+[head.map(q).join(","),...rows.map(r=>[...cols.map(c=>r[c]),actions[r.id]||""].map(q).join(","))].join("\n");
+ if(!downloads){alert("التصدير غير متاح هنا");return}
+ try{await downloads.save({filename:"reps-"+new Date().toISOString().slice(0,10)+".csv",data:csv})}catch(e){}
+};
+
+(async()=>{
+ if(!window.claude?.use){status("افتح الصفحة من claude.ai لحفظ البيانات.");render();return}
+ const timer=setTimeout(()=>status("تعذر تحميل البيانات. تأكد من الاتصال وأنك مسجل دخول."),10000);
+ [db,assets,user,downloads]=await Promise.all(["db","assets","user","downloads"].map(n=>claude.use(n)));
+ if(user){myId=await user.id();canEditDb=(await user.isOwner())||(await user.canEdit())}
+ applySession();
+ if(!db){clearTimeout(timer);status("سجّل الدخول إلى claude.ai لاستخدام هذه الصفحة.");render();return}
+ db.collection("reps").onSnapshot(s=>{clearTimeout(timer);status("");reps=s.docs.map(d=>({id:d.id,...d.data()}));render()},
+  ()=>{clearTimeout(timer);status("لا يمكن قراءة البيانات الآن.")});
+ db.collection("actions").onSnapshot(s=>{actions={};s.docs.forEach(d=>actions[d.id]=d.data()?.action||"");render()},()=>{});
+})();
+</script>
+</body>
+</html>
