@@ -135,9 +135,9 @@ input[readonly]{opacity:.8;cursor:not-allowed}
   <div class="grid">
    <div><label for="f_vtype">نوع المركبة <span class="req">*</span></label><select id="f_vtype" required>
      <option value="">اختر</option><option>Van</option><option>Sedan</option><option>Motorbike</option><option>Tricycle</option></select></div>
-   <div><label for="f_model">نوع العربية أو الموتوسيكل <span class="req">*</span></label><input id="f_model" required placeholder="مثال: Hyundai Verna"></div>
-   <div><label for="f_plate">رقم لوحة المركبة <span class="req">*</span></label><input id="f_plate" required placeholder="بيتملى من الرخصة"></div>
-   <div><label for="f_year">سنة صنع المركبة <span class="req">*</span></label><input id="f_year" required type="number" min="1970" max="2030" dir="ltr" placeholder="بيتملى من الرخصة"></div>
+   <div><label for="f_model">نوع العربية أو الموتوسيكل <span class="req">*</span></label><input id="f_model" required readonly placeholder="بيتملى من الرخصة"></div>
+   <div><label for="f_plate">رقم لوحة المركبة <span class="req">*</span></label><input id="f_plate" required readonly placeholder="بيتملى من الرخصة"></div>
+   <div><label for="f_year">سنة صنع المركبة <span class="req">*</span></label><input id="f_year" required readonly dir="ltr" placeholder="بيتملى من الرخصة"></div>
   </div>
  </fieldset>
  <fieldset><legend>الصور</legend>
@@ -273,7 +273,7 @@ const normPlate=t=>{const x=String(t||"").replace(/[٠-٩]/g,c=>c.charCodeAt(0)-
 const samePlate=(a,b)=>!!a&&!!b&&normPlate(a)===normPlate(b);
 function setMsg(id,cls,t){const m=$("#"+id);m.className="msg"+(cls?" "+cls:"");m.textContent=t}
 function clearImg(k){files[k]=[];$(`[data-img="${k}"]`).value="";$(`[data-prev="${k}"]`).innerHTML=""}
-function lockVehicleFields(on){["f_plate","f_year"].forEach(id=>$("#"+id).readOnly=on)}
+function lockVehicleFields(on){if(!on)["f_model","f_plate","f_year"].forEach(id=>$("#"+id).value="")}
 function runMatch(){
  if(!lic||!plateOk)return;
  if(!samePlate(lic.plate,plateOk.plate)){
@@ -285,16 +285,16 @@ async function readLicense(){
  lic=null;lockVehicleFields(false);
  if(!files.front.length||!files.back.length){setMsg("licMsg","",files.front.length||files.back.length?"ارفع صور الوش والضهر علشان نقرا بيانات رخصة المركبة.":"");return}
  const snap=[...files.front,...files.back];
- setMsg("licMsg","","جاري قراءة رقم اللوحة وسنة الصنع من الرخصة…");
+ setMsg("licMsg","","جاري قراءة نوع المركبة ورقم اللوحة وسنة الصنع من الرخصة…");
  try{
   const data={front:[],back:[]};
   for(const k of ["front","back"])for(const f of files[k])data[k].push(await shrink(f));
   const j=await api("readLicense",{images:[...data.front,...data.back]});
   if(snap.some((f,i)=>f!==[...files.front,...files.back][i]))return;
   if(!j.found){setMsg("licMsg","err","مش قادرين نقرا رخصة المركبة: "+(j.reason||"رقم اللوحة أو سنة الصنع مش واضحين")+". ارفع صورة أوضح للرخصة.");return}
-  lic={plate:j.plate,year:String(j.year),data};
-  $("#f_plate").value=lic.plate;$("#f_year").value=lic.year;lockVehicleFields(true);
-  setMsg("licMsg","ok",`من الرخصة: رقم اللوحة ${lic.plate}، سنة الصنع ${lic.year}`);
+  lic={plate:j.plate,year:String(j.year),model:j.model,data};
+  $("#f_model").value=lic.model;$("#f_plate").value=lic.plate;$("#f_year").value=lic.year;
+  setMsg("licMsg","ok",`من الرخصة: ${lic.model}، رقم اللوحة ${lic.plate}، سنة الصنع ${lic.year}`);
   runMatch();
  }catch(err){setMsg("licMsg","err","تعذر قراءة الرخصة: "+err.message+" ");const b=document.createElement("button");b.type="button";b.className="link";b.textContent="حاول تاني";b.onclick=readLicense;$("#licMsg").append(b)}
 }
@@ -336,6 +336,7 @@ $("#repForm").onsubmit=async e=>{
  if(!session||isAdmin)return bad("سجّل دخول المكتب الأول");
  const req=["f_date","f_office","f_name","f_phone","f_nid","f_hub","f_vtype","f_model","f_plate","f_year"];
  const missing=req.find(id=>!v(id));
+ if(missing&&["f_model","f_plate","f_year"].includes(missing))return bad("ارفع صور الرخصة الأول علشان نوع المركبة ورقم اللوحة وسنة الصنع يتملوا لوحدهم");
  if(missing){bad("أكمل كل الحقول المطلوبة");$("#"+missing).focus();return}
  if(v("f_name").split(/\s+/).length<4){bad("اكتب اسم المندوب رباعي");$("#f_name").focus();return}
  if(!/^\d{11}$/.test(v("f_phone"))){bad("رقم الهاتف لازم يكون 11 رقم بالظبط");$("#f_phone").focus();return}
@@ -345,7 +346,7 @@ $("#repForm").onsubmit=async e=>{
  if(!lic)return bad("لازم صور الرخصة تتقري الأول (رقم اللوحة وسنة الصنع)");
  if(!plateOk)return bad("صورة المركبة لازم يكون فيها رقم اللوحة واضح ومطابق للرخصة");
  if(!samePlate(v("f_plate"),lic.plate)||!samePlate(plateOk.plate,lic.plate))return bad("رقم اللوحة مش مطابق بين الرخصة وصورة المركبة");
- if(v("f_year")!==lic.year)return bad("سنة الصنع مش مطابقة للرخصة");
+ if(v("f_year")!==lic.year||v("f_model")!==lic.model)return bad("بيانات المركبة مش مطابقة للرخصة");
  const btn=$("#submitBtn");btn.disabled=true;msg.textContent="جاري تجهيز الصور…";
  try{
   const images={front:lic.data.front,back:lic.data.back,vehicle:[plateOk.data],personal:[]};
