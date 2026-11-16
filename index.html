@@ -296,7 +296,7 @@ async function readLicense(){
   $("#f_plate").value=lic.plate;$("#f_year").value=lic.year;lockVehicleFields(true);
   setMsg("licMsg","ok",`من الرخصة: رقم اللوحة ${lic.plate}، سنة الصنع ${lic.year}`);
   runMatch();
- }catch(err){setMsg("licMsg","err","تعذر قراءة الرخصة: "+err.message)}
+ }catch(err){setMsg("licMsg","err","تعذر قراءة الرخصة: "+err.message+" ");const b=document.createElement("button");b.type="button";b.className="link";b.textContent="حاول تاني";b.onclick=readLicense;$("#licMsg").append(b)}
 }
 $$("input[data-img]").forEach(inp=>inp.onchange=async()=>{
  const k=inp.dataset.img; files[k]=[...inp.files];
